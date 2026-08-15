@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Gaming App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #0f172a; color: #fff; display: flex; justify-content: center; padding: 0; }
+        
+        .mobile-frame { width: 100%; max-width: 430px; background: #1e293b; min-height: 100vh; padding-bottom: 70px; position: relative; border: 1px solid #334155; }
+        
+        /* Header */
+        .top-header { background: #0f172a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 10; }
+        .brand-logo { font-size: 18px; font-weight: bold; color: #38bdf8; }
+        .user-welcome { font-size: 12px; color: #94a3b8; }
+
+        /* Container & Cards */
+        .container { padding: 15px; }
+        .card { background: #0f172a; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px; }
+        .card-title { font-size: 14px; font-weight: bold; color: #38bdf8; margin-bottom: 10px; border-bottom: 1px solid #1e293b; padding-bottom: 5px; }
+        
+        /* Form Inputs & Buttons */
+        input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: #fff; margin-bottom: 10px; font-size: 13px; }
+        button { width: 100%; background: #2563eb; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        button.success { background: #10b981; }
+        button.warning { background: #f59e0b; }
+        button.danger { background: #ef4444; }
+
+        .hidden { display: none !important; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .grid-4 button { padding: 8px 4px; font-size: 11px; }
+
+        /* Balance Card */
+        .balance-box { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #38bdf8; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
+        .bal-val { font-size: 22px; font-weight: bold; color: #10b981; margin: 5px 0; }
+        .sub-bal { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; margin-top: 10px; border-top: 1px solid #334155; padding-top: 8px; }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 430px; background: #0f172a; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #334155; z-index: 100; }
+        .nav-item { text-align: center; color: #94a3b8; font-size: 11px; cursor: pointer; text-decoration: none; flex: 1; }
+        .nav-item.active { color: #38bdf8; font-weight: bold; }
+        .nav-item div { font-size: 18px; margin-bottom: 2px; }
+
+        /* Chat UI */
+        .chat-box { height: 180px; overflow-y: auto; background: #1e293b; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 12px; }
+        .chat-msg { margin-bottom: 8px; padding: 6px 10px; border-radius: 6px; max-width: 80%; }
+        .user-msg { background: #2563eb; margin-left: auto; text-align: right; }
+        .ai-msg { background: #334155; color: #f8fafc; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-frame">
+    <!-- Header -->
+    <div class="top-header">
+        <div class="brand-logo">👑 VIP GAMING</div>
+        <div class="user-welcome" id="userWelcome">Guest</div>
+    </div>
+
+    <!-- Auth Section -->
+    <div id="authSection" class="container">
+        <div class="card">
+            <h3 style="margin-bottom:12px; text-align:center;">লগইন / রেজিস্ট্রেশন</h3>
+            <input type="text" id="uName" placeholder="আপনার নাম (Name)">
+            <input type="text" id="uPhone" placeholder="মোবাইল নম্বর (Mobile Number)">
+            <input type="password" id="uPass" placeholder="পাসওয়ার্ড (Password)">
+            <input type="text" id="uRefBy" placeholder="রেফারেল কোড (ঐচ্ছিক)">
+            <button onclick="loginUser()">লগইন করুন</button>
+            <button onclick="registerUser()" style="margin-top:8px; background:#475569;">নতুন একাউন্ট খুলুন</button>
+        </div>
+    </div>
+
+    <!-- App Main Content Sections -->
+    <div id="appMain" class="hidden">
+        
+        <!-- 🏠 1. HOME PAGE -->
+        <div id="pageHome" class="container page-section">
+            <div class="balance-box">
+                <div style="font-size: 12px; color: #94a3b8;">Available Balance</div>
+                <div class="bal-val">৳ <span id="dispBalance">0.00</span></div>
+                <div class="sub-bal">
+                    <span>🎁 Bonus: ৳<b id="dispBonus">0.00</b></span>
+                    <span>🔄 Turnover Left: ৳<b id="dispTurnoverRem">0.00</b></span>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="grid-4">
+                <button class="success" onclick="showSubTab('depositCard')">💰 Deposit</button>
+                <button class="warning" onclick="showSubTab('withdrawCard')">💸 Withdraw</button>
+                <button onclick="switchTab('pageReferral')">🎁 Referral</button>
+                <button style="background:#8b5cf6;" onclick="switchTab('pageHelp')">🆘 Help Care</button>
+            </div>
+
+            <!-- Deposit Card Form -->
+            <div id="depositCard" class="card hidden">
+                <div class="card-title">💰 Deposit Request (৳100 - ৳25,000)</div>
+                <select id="depMethod">
+                    <option value="bKash">bKash (বিকাশ)</option>
+                    <option value="Nagad">Nagad (নগদ)</option>
+                    <option value="Rocket">Rocket (রকেট)</option>
+                </select>
+                <input type="number" id="depAmount" placeholder="টাকার পরিমাণ (১০০ - ২৫০০০)">
+                <input type="text" id="depSender" placeholder="যে নম্বর থেকে টাকা পাঠিয়েছেন">
+                <input type="text" id="depTrx" placeholder="Transaction ID (TrxID)">
+                <button class="success" onclick="submitDeposit()">ডিপোজিট সাবমিট করুন</button>
+            </div>
+
+            <!-- Withdraw Card Form -->
+            <div id="withdrawCard" class="card hidden">
+                <div class="card-title">💸 Withdrawal Request (৳100 - ৳25,000)</div>
+                <select id="wMethod">
+                    <option value="bKash">bKash (বিকাশ)</option>
+                    <option value="Nagad">Nagad (নগদ)</option>
+                    <option value="Rocket">Rocket (রকেট)</option>
+                </select>
+                <input type="number" id="wAmount" placeholder="উইথড্র টাকার পরিমাণ">
+                <input type="text" id="wNumber" placeholder="আপনার মেথড নম্বর">
+                <input type="password" id="wPin" maxlength="6" placeholder="৬-ডিজিটের উইথড্র পিন (PIN)">
+                <button class="warning" onclick="submitWithdraw()">উইথড্র রিকোয়েস্ট পাঠান</button>
+            </div>
+
+            <!-- Level & Overview Widget -->
+            <div class="card">
+                <div class="card-title">🏆 Level & Progress Overview</div>
+                <p style="font-size: 12px;">Current Level: <b id="dispLevel" style="color:#f59e0b;">0</b></p>
+                <p style="font-size: 12px; margin-top: 5px;">Required Turnover: ৳<b id="dispTurnoverReq">0.00</b></p>
+                <p style="font-size: 12px; margin-top: 5px;">Completed Turnover: ৳<b id="dispTurnoverComp" style="color:#10b981;">0.00</b></p>
+            </div>
+        </div>
+
+        <!-- 🎁 2. REFERRAL PAGE -->
+        <div id="pageReferral" class="container page-section hidden">
+            <div class="card">
+                <div class="card-title">🎁 Referral Program</div>
+                <p style="font-size:12px; color:#94a3b8;">আপনার রেফারেল আইডি (Referral ID):</p>
+                <h3 id="refIdDisp" style="color:#38bdf8; margin: 5px 0 10px 0;">REF0000</h3>
+                <input type="text" id="refLinkInput" readonly value="https://app.link/register?ref=REF0000">
+                <button onclick="copyRefLink()">লিংক কপি করুন</button>
+            </div>
+            <div class="card">
+                <div class="card-title">📊 Referral History & Stats</div>
+                <p style="font-size:12px;">Total Referrals: <b id="refCount">0</b></p>
+            </div>
+        </div>
+
+        <!-- 🆘 3. HELP CARE PAGE -->
+        <div id="pageHelp" class="container page-section hidden">
+            <div class="card">
+                <div class="card-title">🤖 24/7 AI Support Assistant</div>
+                <div class="chat-box" id="chatBox">
+                    <div class="chat-msg ai-msg">স্যার, আপনাকে কিভাবে সাহায্য করতে পারি?</div>
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="chatInput" placeholder="আপনার প্রশ্ন লিখুন..." style="margin:0;">
+                    <button style="width:70px;" onclick="sendAiMessage()">Send</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">👨‍💼 Official Verified Agents</div>
+                <p style="font-size:12px; color:#94a3b8;">Agent 1: Official Support (Online)</p>
+                <button style="margin-top:8px; background:#059669;" onclick="alert('অফিসিয়াল এজেন্টের সেশন শুরু হচ্ছে...')">Contact Agent</button>
+            </div>
+        </div>
+
+        <!-- 👤 4. PROFILE PAGE -->
+        <div id="pageProfile" class="container page-section hidden">
+            <div class="card">
+                <div class="card-title">👤 Personal Info</div>
+                <p style="font-size:12px;">নাম: <b id="profName">-</b></p>
+                <p style="font-size:12px; margin-top:4px;">মোবাইল: <b id="profPhone">-</b></p>
+                <p style="font-size:12px; margin-top:4px;">Account Status: <b id="profStatus" style="color:#10b981;">active</b></p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚙️ Security Settings</div>
+                <button style="margin-bottom:8px; background:#475569;" onclick="changePin()">Change Withdrawal PIN</button>
+                <button style="background:#475569;" onclick="changePassword()">Change Password</button>
+            </div>
+
+            <button class="danger" onclick="logoutUser()">🚪 Logout</button>
+        </div>
+
+        <!-- Bottom Navigation Menu Bar -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('pageHome', this)">
+                <div>🏠</div>Home
+            </div>
+            <div class="nav-item" onclick="switchTab('pageReferral', this)">
+                <div>🎁</div>Referral
+            </div>
+            <div class="nav-item" onclick="switchTab('pageHelp', this)">
+                <div>🆘</div>Help Care
+            </div>
+            <div class="nav-item" onclick="switchTab('pageProfile', this)">
+                <div>👤</div>Profile
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDlmi7Gs0G7MnOtQXBmpI8TxBs1CfjhlUo",
+        authDomain: "g6bdwin.firebaseapp.com",
+        databaseURL: "https://g6bdwin-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "g6bdwin",
+        storageBucket: "g6bdwin.firebasestorage.app",
+        messagingSenderId: "872964112407",
+        appId: "1:872964112407:android:64a5e002b09872688a1c52"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    let currentUser = null;
+
+    // Navigation Switcher
+    function switchTab(pageId, element) {
+        document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+        document.getElementById(pageId).classList.remove('hidden');
+
+        if(element) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+    }
+
+    function showSubTab(subId) {
+        document.getElementById('depositCard').classList.add('hidden');
+        document.getElementById('withdrawCard').classList.add('hidden');
+        document.getElementById(subId).classList.remove('hidden');
+    }
+
+    // User Registration with SQL Table Structure Synchronization
+    function registerUser() {
+        let name = document.getElementById('uName').value.trim();
+        let phone = document.getElementById('uPhone').value.trim();
+        let pass = document.getElementById('uPass').value.trim();
+        let refBy = document.getElementById('uRefBy').value.trim();
+
+        if(!name || !phone || !pass) return alert('নাম, ফোন নম্বর ও পাসওয়ার্ড অবশ্যই দিতে হবে');
+
+        database.ref('users/' + phone).once('value', snap => {
+            if(snap.exists()) {
+                alert('এই Mobile Number দিয়ে ইতিমধ্যে একটি Account রয়েছে।');
+            } else {
+                let generatedRefId = 'REF' + Math.floor(10000 + Math.random() * 90000);
+                
+                // Matches MySQL Users Table Exactly
+                let userData = {
+                    name: name,
+                    mobile_number: phone,
+                    password_hash: pass, // In production, hash this server-side
+                    withdrawal_pin_hash: '123456', // Default 6-Digit PIN
+                    referral_id: generatedRefId,
+                    referred_by_user_id: refBy || null,
+                    available_balance: 0.00,
+                    bonus_balance: 0.00,
+                    turnover_required: 0.00,
+                    turnover_completed: 0.00,
+                    current_level: 0,
+                    total_referrals: 0,
+                    account_status: 'active',
+                    created_at: new Date().toISOString(),
+                    last_login: new Date().toISOString()
+                };
+
+                database.ref('users/' + phone).set(userData).then(() => {
+                    alert('🎉 রেজিস্ট্রেশন সফল হয়েছে! আপনার ডিফল্ট উইথড্র পিন: 123456');
+                });
+            }
+        });
+    }
+
+    // User Login Procedure
+    function loginUser() {
+        let phone = document.getElementById('uPhone').value.trim();
+        let pass = document.getElementById('uPass').value.trim();
+
+        database.ref('users/' + phone).once('value', snap => {
+            if(snap.exists() && snap.val().password_hash === pass) {
+                if(snap.val().account_status !== 'active') {
+                    return alert('❌ আপনার অ্যাকাউন্টটি ' + snap.val().account_status + ' অবস্থায় রয়েছে।');
+                }
+                currentUser = phone;
+                database.ref('users/' + phone).update({ last_login: new Date().toISOString() });
+                
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('appMain').classList.remove('hidden');
+                listenUserData();
+            } else {
+                alert('❌ ভুল ফোন নম্বর বা পাসওয়ার্ড!');
+            }
+        });
+    }
+
+    // Real-time Database Observer
+    function listenUserData() {
+        database.ref('users/' + currentUser).on('value', snap => {
+            let data = snap.val();
+            let reqTurnover = parseFloat(data.turnover_required || 0);
+            let compTurnover = parseFloat(data.turnover_completed || 0);
+            let remTurnover = Math.max(0, reqTurnover - compTurnover);
+
+            document.getElementById('userWelcome').innerText = data.name || data.mobile_number;
+            document.getElementById('dispBalance').innerText = parseFloat(data.available_balance || 0).toFixed(2);
+            document.getElementById('dispBonus').innerText = parseFloat(data.bonus_balance || 0).toFixed(2);
+            document.getElementById('dispTurnoverRem').innerText = remTurnover.toFixed(2);
+            document.getElementById('dispTurnoverReq').innerText = reqTurnover.toFixed(2);
+            document.getElementById('dispTurnoverComp').innerText = compTurnover.toFixed(2);
+            document.getElementById('dispLevel').innerText = data.current_level || 0;
+            
+            // Profile & Referral Section Update
+            document.getElementById('profName').innerText = data.name || '-';
+            document.getElementById('profPhone').innerText = data.mobile_number || '-';
+            document.getElementById('profStatus').innerText = data.account_status || 'active';
+            document.getElementById('refIdDisp').innerText = data.referral_id || 'N/A';
+            document.getElementById('refLinkInput').value = `https://app.link/register?ref=${data.referral_id}`;
+            document.getElementById('refCount').innerText = data.total_referrals || 0;
+        });
+    }
+
+    // Deposit Submission
+    function submitDeposit() {
+        let method = document.getElementById('depMethod').value;
+        let amount = parseFloat(document.getElementById('depAmount').value);
+        let sender = document.getElementById('depSender').value.trim();
+        let trx = document.getElementById('depTrx').value.trim();
+
+        if(!amount || amount < 100 || amount > 25000 || !sender || !trx) {
+            return alert('সঠিক তথ্য দিন (৳১০০ - ৳২৫,০০০)');
+        }
+
+        let reqId = Date.now();
+        database.ref('deposits/' + reqId).set({
+            id: reqId,
+            userPhone: currentUser,
+            method: method,
+            amount: amount,
+            sender: sender,
+            trx: trx,
+            status: 'pending',
+            time: new Date().toLocaleString('bn-BD')
+        }).then(() => {
+            alert('✅ ডিপোজিট রিকোয়েস্ট সফলভাবে জমা হয়েছে!');
+            document.getElementById('depAmount').value = '';
+            document.getElementById('depSender').value = '';
+            document.getElementById('depTrx').value = '';
+        });
+    }
+
+    // Withdrawal Process Verification
+    function submitWithdraw() {
+        let method = document.getElementById('wMethod').value;
+        let amount = parseFloat(document.getElementById('wAmount').value);
+        let number = document.getElementById('wNumber').value.trim();
+        let pin = document.getElementById('wPin').value.trim();
+
+        if(!amount || amount < 100 || amount > 25000 || !number || !pin) {
+            return alert('সঠিক তথ্য ও ৬-ডিজিট পিন প্রদান করুন (৳১০০ - ৳২৫,০০০)');
+        }
+
+        database.ref('users/' + currentUser).once('value', snap => {
+            let u = snap.val();
+            let reqTurnover = parseFloat(u.turnover_required || 0);
+            let compTurnover = parseFloat(u.turnover_completed || 0);
+
+            if(u.withdrawal_pin_hash !== pin) return alert('❌ ভুল উইথড্র পিন (Withdrawal PIN)!');
+            if(compTurnover < reqTurnover) return alert('❌ আপনার টার্নওভার (Turnover) সম্পূর্ণ হয়নি, উইথড্র করা সম্ভব নয়!');
+            if(parseFloat(u.available_balance || 0) < amount) return alert('❌ পর্যাপ্ত ব্যালেন্স নেই!');
+
+            let reqId = Date.now();
+            database.ref('withdraws/' + reqId).set({
+                id: reqId,
+                userPhone: currentUser,
+                method: method,
+                amount: amount,
+                number: number,
+                status: 'pending',
+                time: new Date().toLocaleString('bn-BD')
+            }).then(() => {
+                alert('✅ উইথড্র রিকোয়েস্ট সফলভাবে প্রসেসিংয়ে পাঠানো হয়েছে!');
+                document.getElementById('wAmount').value = '';
+                document.getElementById('wNumber').value = '';
+                document.getElementById('wPin').value = '';
+            });
+        });
+    }
+
+    // AI Support Assistant Response
+    function sendAiMessage() {
+        let input = document.getElementById('chatInput');
+        let text = input.value.trim();
+        if(!text) return;
+
+        let chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML += `<div class="chat-msg user-msg">${text}</div>`;
+        input.value = '';
+
+        setTimeout(() => {
+            chatBox.innerHTML += `<div class="chat-msg ai-msg">জি স্যার, আপনার রিকোয়েস্টটি বুঝতে পেরেছি। দয়া করে আপনার টার্নওভার ও অ্যাকাউন্ট স্ট্যাটাস ড্যাশবোর্ডে ভেরিফাই করুন।</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 600);
+    }
+
+    // PIN Update
+    function changePin() {
+        let newPin = prompt('আপনার নতুন ৬-ডিজিটের উইথড্র পিন দিন:');
+        if(newPin && newPin.length === 6) {
+            database.ref('users/' + currentUser).update({ withdrawal_pin_hash: newPin });
+            alert('✅ Withdrawal PIN সফলভাবে পরিবর্তন হয়েছে!');
+        } else {
+            alert('❌ পিন অবশ্যই ৬ ডিজিটের হতে হবে!');
+        }
+    }
+
+    // Password Update
+    function changePassword() {
+        let newPass = prompt('নতুন পাসওয়ার্ড দিন:');
+        if(newPass) {
+            database.ref('users/' + currentUser).update({ password_hash: newPass });
+            alert('✅ পাসওয়ার্ড আপডেট হয়েছে!');
+        }
+    }
+
+    function copyRefLink() {
+        let copyText = document.getElementById("refLinkInput");
+        copyText.select();
+        document.execCommand("copy");
+        alert("🎉 রেফারেল লিঙ্ক কপি হয়েছে!");
+    }
+
+    function logoutUser() {
+        location.reload();
+    }
+</script>
+</body>
+</html>
