@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP App - Advanced Admin Panel</title>
+<style>
+  *{box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0;}
+  body{background:#f0f2f5; display:flex; justify-content:center; padding:15px;}
+  .admin-app{width:100%; max-width:430px; background:#fff; min-height:100vh; padding:15px; border-radius:18px; box-shadow:0 0 20px rgba(0,0,0,0.1);}
+
+  .admin-header{background:linear-gradient(135deg, #dc2626, #991b1b); color:#fff; padding:18px; border-radius:16px; text-align:center; margin-bottom:15px;}
+  .admin-header h2{font-size:20px; margin-bottom:4px;}
+  
+  .card{background:#fff; border-radius:14px; padding:15px; margin-bottom:15px; box-shadow:0 3px 10px rgba(0,0,0,0.05); border:1px solid #fee2e2;}
+  .card h3{font-size:15px; color:#1e293b; margin-bottom:10px;}
+
+  input, textarea{width:100%; padding:10px; margin:5px 0 10px 0; border-radius:8px; border:1px solid #cbd5e1; font-size:12px; outline:none;}
+  input:focus, textarea:focus{border-color:#ef4444;}
+
+  button{width:100%; padding:9px; border:0; border-radius:8px; color:#fff; font-size:12px; font-weight:600; cursor:pointer;}
+  .btn-approve{background:#10b981;}
+  .btn-reject{background:#ef4444;}
+  .btn-purple{background:#8b5cf6;}
+  .btn-dark{background:#0f172a;}
+  
+  .tx-item{background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:8px; font-size:12px;}
+  .tx-item-header{display:flex; justify-content:space-between; font-weight:bold; margin-bottom:4px;}
+  .btn-group{display:flex; gap:6px; margin-top:8px;}
+  .status-badge{display:inline-block; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:bold;}
+  .status-Pending{background:#fef3c7; color:#d97706;}
+  .status-Approved{background:#d1fae5; color:#059669;}
+  .status-Rejected{background:#fee2e2; color:#dc2626;}
+</style>
+</head>
+<body>
+
+<div class="admin-app">
+
+  <!-- Header Section -->
+  <div class="admin-header">
+    <h2>⚙️ Admin Control Panel</h2>
+    <p>Live Firebase Control System</p>
+  </div>
+
+  <!-- 📱 1. Live Active Users Count -->
+  <div class="card">
+    <h3>📱 Active Users Track</h3>
+    <p style="font-size:13px; color:#475569;">মোট নিবন্ধিত ইউজার: <strong id="totalUsersCount" style="color:#dc2626; font-size:16px;">0</strong> জন</p>
+  </div>
+
+  <!-- 📢 2. Push Notification Control -->
+  <div class="card">
+    <h3>📢 Send App Notification</h3>
+    <input type="text" id="notifTitle" placeholder="নোটিফিকেশন টাইটেল (যেমন: বিশেষ অফার!)">
+    <textarea id="notifBody" rows="2" placeholder="নোটিফিকেশনের মেসেজ লিখুন..."></textarea>
+    <button class="btn-purple" onclick="sendNotification()">Send Notification to App</button>
+  </div>
+
+  <!-- 🎬 3. Ad & Banner Notice Control -->
+  <div class="card">
+    <h3>🎬 Update Ad & Promo Banner</h3>
+    <input type="text" id="adTitle" placeholder="বিজ্ঞাপনের ব্যানার টাইটেল">
+    <input type="text" id="adText" placeholder="বিজ্ঞাপনের বিস্তারিত বিবরণ (অফার টেস্ট)">
+    <button class="btn-dark" onclick="updateAdBanner()">Update Live Ad Banner</button>
+  </div>
+
+  <!-- 💰 4. Deposit Requests -->
+  <div class="card">
+    <h3>💰 Pending Deposits</h3>
+    <div id="depositList"><p style="font-size:12px; color:#94a3b8;">লোড হচ্ছে...</p></div>
+  </div>
+
+  <!-- 💸 5. Withdraw Requests -->
+  <div class="card">
+    <h3>💸 Pending Withdraws</h3>
+    <div id="withdrawList"><p style="font-size:12px; color:#94a3b8;">লোড হচ্ছে...</p></div>
+  </div>
+
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBYr7gGY1zzBPg_qjdpRVDlYVJ4lao8ukE",
+    authDomain: "myvipappcom.firebaseapp.com",
+    databaseURL: "https://myvipappcom-default-rtdb.firebaseio.com",
+    projectId: "myvipappcom",
+    storageBucket: "myvipappcom.firebasestorage.app",
+    messagingSenderId: "181321935031",
+    appId: "1:181321935031:web:5667ba852b96e103760532"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // 1. Total Users Count Live Track
+  onValue(ref(db, 'users'), (snapshot) => {
+    const users = snapshot.val();
+    if(users) {
+      document.getElementById('totalUsersCount').innerText = Object.keys(users).length;
+    } else {
+      document.getElementById('totalUsersCount').innerText = "0";
+    }
+  });
+
+  // 2. Send Notification Function
+  window.sendNotification = function() {
+    let title = document.getElementById('notifTitle').value;
+    let body = document.getElementById('notifBody').value;
+
+    if(title && body) {
+      set(ref(db, 'notices/pushNotification'), {
+        title: title,
+        body: body,
+        time: new Date().toLocaleString()
+      }).then(() => {
+        alert("নোটিফিকেশন সফলভাবে অ্যাপে পাঠানো হয়েছে!");
+        document.getElementById('notifTitle').value = '';
+        document.getElementById('notifBody').value = '';
+      });
+    } else {
+      alert("দয়া করে টাইটেল এবং মেসেজ দুটিই লিখুন!");
+    }
+  };
+
+  // 3. Update Ad Banner Function
+  window.updateAdBanner = function() {
+    let title = document.getElementById('adTitle').value;
+    let text = document.getElementById('adText').value;
+
+    if(title && text) {
+      set(ref(db, 'notices/adBanner'), {
+        title: title,
+        text: text
+      }).then(() => {
+        alert("লাইভ বিজ্ঞাপন ব্যানার আপডেট হয়েছে!");
+      });
+    } else {
+      alert("বিজ্ঞাপনের তথ্য সঠিক নয়!");
+    }
+  };
+
+  // 4. Deposits Sync
+  onValue(ref(db, 'deposits'), (snapshot) => {
+    const data = snapshot.val();
+    const container = document.getElementById('depositList');
+    container.innerHTML = '';
+    if(data) {
+      Object.keys(data).forEach(key => {
+        let item = data[key];
+        container.innerHTML += `
+          <div class="tx-item">
+            <div class="tx-item-header">
+              <span>👤 ${item.user || 'Unknown'}</span>
+              <span class="status-badge status-${item.status}">${item.status}</span>
+            </div>
+            <div>Amount: <strong>৳${item.amount}</strong> | TrxID: <code>${item.trxId}</code></div>
+            ${item.status === 'Pending' ? `
+              <div class="btn-group">
+                <button class="btn-approve" onclick="updateStatus('deposits', '${key}', 'Approved')">Approve</button>
+                <button class="btn-reject" onclick="updateStatus('deposits', '${key}', 'Rejected')">Reject</button>
+              </div>
+            ` : ''}
+          </div>`;
+      });
+    } else {
+      container.innerHTML = '<p style="font-size:12px; color:#94a3b8;">কোনো ডিপোজিট নেই।</p>';
+    }
+  });
+
+  // 5. Withdraws Sync
+  onValue(ref(db, 'withdraws'), (snapshot) => {
+    const data = snapshot.val();
+    const container = document.getElementById('withdrawList');
+    container.innerHTML = '';
+    if(data) {
+      Object.keys(data).forEach(key => {
+        let item = data[key];
+        container.innerHTML += `
+          <div class="tx-item">
+            <div class="tx-item-header">
+              <span>👤 ${item.user || 'Unknown'}</span>
+              <span class="status-badge status-${item.status}">${item.status}</span>
+            </div>
+            <div>Amount: <strong>৳${item.amount}</strong> | Wallet: <code>${item.number}</code></div>
+            ${item.status === 'Pending' ? `
+              <div class="btn-group">
+                <button class="btn-approve" onclick="updateStatus('withdraws', '${key}', 'Approved')">Approve</button>
+                <button class="btn-reject" onclick="updateStatus('withdraws', '${key}', 'Rejected')">Reject</button>
+              </div>
+            ` : ''}
+          </div>`;
+      });
+    } else {
+      container.innerHTML = '<p style="font-size:12px; color:#94a3b8;">কোনো উইথড্র নেই।</p>';
+    }
+  });
+
+  // Action Update
+  window.updateStatus = function(path, key, status) {
+    update(ref(db, `${path}/${key}`), { status: status })
+    .then(() => alert(`Status ${status}!`));
+  };
+</script>
+
+</body>
+</html>
+
