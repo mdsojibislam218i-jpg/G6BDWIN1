@@ -1,239 +1,168 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIP App - User Dashboard</title>
-<style>
-  *{box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0;}
-  body{background:#f0f2f5; display:flex; justify-content:center;}
-  .app{width:100%; max-width:430px; background:#fff; min-height:100vh; padding:15px; padding-bottom:90px; position:relative; box-shadow:0 0 20px rgba(0,0,0,0.1);}
+    <meta charset="UTF-8">
+    <!-- এই মেটা ট্যাগটি মোবাইল স্ক্রিনে রেসপনসিভ ও ছোট করে দেখাবে -->
+    <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=1.0, user-scalable=no">
+    <title>VIPBD75</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
 
-  /* Common Components */
-  .card{background:#fff; border-radius:16px; padding:16px; margin-bottom:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05); border:1px solid #edf2f7;}
-  .header{background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; text-align:center; padding:20px; border-radius:20px; margin-bottom:15px;}
-  .logo-avatar{width:75px; height:75px; border-radius:50%; background:#fff; color:#4f46e5; display:flex; align-items:center; justify-content:center; margin:auto; font-size:26px; font-weight:bold; border:3px solid #c7d2fe; position:relative;}
-  .change-logo-btn{position:absolute; bottom:0; right:0; background:#10b981; color:#fff; font-size:10px; padding:2px 6px; border-radius:10px; cursor:pointer;}
-  
-  /* Buttons & Inputs */
-  button{width:100%; padding:12px; margin:6px 0; border:0; border-radius:10px; background:#4f46e5; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;}
-  button:hover{opacity:0.9;}
-  button:active{transform:scale(0.98);}
-  input, select{width:100%; padding:12px; margin:6px 0; border-radius:10px; border:1px solid #cbd5e1; font-size:14px; outline:none;}
-  input:focus{border-color:#6366f1;}
+        body {
+            background-color: #f4f5f9;
+            padding-bottom: 70px; /* নিচের নেভিগেশন বারের জন্য জায়গা রাখা হলো */
+            zoom: 0.9; /* পুরো পেজ ১০% ছোট করার জন্য */
+        }
 
-  /* Payment Selection Logos */
-  .pay-methods{display:flex; gap:10px; margin:10px 0;}
-  .pay-card{flex:1; padding:12px; text-align:center; color:#fff; border-radius:12px; font-weight:bold; cursor:pointer; opacity:0.6; transition:0.3s;}
-  .pay-card.selected{opacity:1; transform:scale(1.02); box-shadow:0 4px 10px rgba(0,0,0,0.15);}
-  .bkash{background:#e2136e;}
-  .nagad{background:#f7941d;}
+        /* হেডার স্টাইল */
+        .header {
+            background-color: #121212;
+            color: #fff;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-  /* Amount Buttons Grid */
-  .amount-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:10px 0;}
-  .amount-btn{background:#e0e7ff; color:#3730a3; padding:10px; border-radius:8px; text-align:center; font-weight:bold; cursor:pointer; border:1px solid #c7d2fe;}
-  .amount-btn:hover{background:#c7d2fe;}
+        .header h2 {
+            font-size: 18px;
+        }
 
-  /* Bottom Menu Bar */
-  .nav{display:flex; justify-content:space-around; background:#0f172a; color:#94a3b8; padding:10px 2px; border-radius:20px; position:fixed; bottom:12px; max-width:400px; width:calc(100% - 30px); font-size:10px; text-align:center; z-index:100;}
-  .nav div{cursor:pointer; flex:1;}
-  .nav div.active-nav{color:#38bdf8; font-weight:bold;}
-  .nav span{display:block; font-size:16px; margin-bottom:2px;}
+        /* প্রোফাইল প্রিমিয়াম কার্ড */
+        .vip-card {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            margin: 12px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
-  /* Support Chat Box */
-  .chat-box{height:180px; border:1px solid #e2e8f0; border-radius:10px; padding:10px; overflow-y:auto; background:#f8fafc; margin-bottom:10px;}
-  .chat-msg{margin-bottom:8px; font-size:13px; max-width:80%; padding:8px 12px; border-radius:12px;}
-  .bot-msg{background:#e0e7ff; color:#1e1b4b;}
-  .user-msg{background:#4f46e5; color:#fff; margin-left:auto;}
+        .vip-avatar {
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            color: #2575fc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
 
-  /* Dynamic Page Switcher */
-  .page{display:none;}
-  .active{display:block;}
-</style>
+        /* অফার ও নোটিশ কার্ড */
+        .notice-card {
+            background: #fff;
+            margin: 10px 12px;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 13px;
+        }
+
+        .notice-card.offer {
+            background: #ffe6eb;
+            color: #d63384;
+        }
+
+        .notice-card h4 {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        /* বটম নেভিগেশন বার */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #0f172a;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            color: #94a3b8;
+            text-decoration: none;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .nav-item.active {
+            color: #38bdf8;
+        }
+
+        .nav-item div {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app">
-
-  <div id="home" class="page active">
+    <!-- হেডার -->
     <div class="header">
-      <div class="logo-avatar">VIP</div>
-      <h2 style="margin-top:8px;">VIP Master</h2>
-      <small>Welcome Back!</small>
-    </div>
-    
-    <div class="card" style="background:linear-gradient(45deg, #ff9a9e, #fecfef); color:#881337;">
-      <strong>📢 মেগা অফার!</strong>
-      <p style="font-size:12px; margin-top:4px;">আজই ডিপোজিট করুন এবং পান ২০% পর্যন্ত বোনাস!</p>
+        <h2>VIPBD75</h2>
+        <span style="color: #4cd137;">★</span>
     </div>
 
-    <div class="card">
-      <h3>📢 অফিশিয়াল নোটিশ</h3>
-      <p style="font-size:13px; color:#475569; margin-top:5px;">🎁 নতুন বোনাস ও অফার চলছে। আপনার অ্যাকাউন্ট নিরাপদ রাখুন এবং সঠিক তথ্য ব্যবহার করুন।</p>
-    </div>
-  </div>
-
-  <div id="wallet" class="page">
-    <div class="card">
-      <h2>💳 Deposit System</h2>
-      <p style="font-size:12px; color:#64748b; margin-top:5px;">পেমেন্ট মেথড সিলেক্ট করুন:</p>
-      
-      <div class="pay-methods">
-        <div class="pay-card bkash selected" onclick="selectPay(this)">🟣 bKash</div>
-        <div class="pay-card nagad" onclick="selectPay(this)">🟠 Nagad</div>
-      </div>
-
-      <p style="font-size:12px; color:#64748b;">পরিমাণ নির্বাচন করুন (৳):</p>
-      <div class="amount-grid">
-        <div class="amount-btn" onclick="setDepAmount(100)">৳100</div>
-        <div class="amount-btn" onclick="setDepAmount(500)">৳500</div>
-        <div class="amount-btn" onclick="setDepAmount(1000)">৳1000</div>
-        <div class="amount-btn" onclick="setDepAmount(2000)">৳2000</div>
-        <div class="amount-btn" onclick="setDepAmount(5000)">৳5000</div>
-        <div class="amount-btn" onclick="setDepAmount(15000)">৳15000</div>
-      </div>
-
-      <input type="number" id="depInput" placeholder="নিজের মতো Amount লিখুন (৳)">
-      <input type="text" placeholder="Transaction ID (TrxID)">
-      <button style="background:#10b981;">Deposit Submit</button>
-    </div>
-  </div>
-
-  <div id="withdraw" class="page">
-    <div class="card">
-      <h2>💸 Withdraw System</h2>
-      <p style="font-size:13px; color:#10b981; font-weight:bold; margin-top:4px;">Available Balance: ৳5,250</p>
-      
-      <p style="font-size:12px; color:#64748b; margin-top:10px;">মেথড সিলেক্ট করুন:</p>
-      <div class="pay-methods">
-        <div class="pay-card bkash selected" onclick="selectPay(this)">🟣 bKash</div>
-        <div class="pay-card nagad" onclick="selectPay(this)">🟠 Nagad</div>
-      </div>
-
-      <input type="number" placeholder="Withdraw Amount (৳100 - ৳15,000)">
-      <input type="text" placeholder="Wallet Account Number">
-      <input type="password" placeholder="Withdraw PIN">
-      
-      <small style="color:#ef4444; font-size:11px;">* Minimum: ৳100 | Maximum: ৳15,000</small>
-      <button style="background:#ef4444; margin-top:10px;">Request Withdraw</button>
-    </div>
-  </div>
-
-  <div id="bonus" class="page">
-    <div class="card">
-      <h2>🎁 Referral & Bonus</h2>
-      <div style="background:#f8fafc; border:1px dashed #6366f1; padding:12px; border-radius:10px; text-align:center; margin:10px 0;">
-        <small>Your Referral ID</small>
-        <h3 style="color:#4f46e5;">VIP-88402</h3>
-      </div>
-      <button style="background:#4f46e5;">🔗 Copy Referral Link</button>
-      <button style="background:#25d366;">📱 Share IMO / WhatsApp / Telegram</button>
+    <!-- ভিআইপি কার্ড -->
+    <div class="vip-card">
+        <div class="vip-avatar">VIP</div>
+        <h3>VIP Master</h3>
+        <p style="font-size: 12px; opacity: 0.9;">Welcome Back!</p>
     </div>
 
-    <div class="card">
-      <h3>📊 Bonus & History</h3>
-      <p style="font-size:13px; margin:5px 0;">Total Referred Users: <strong>15 Person</strong></p>
-      <p style="font-size:13px; margin:5px 0;">Total Earned Bonus: <strong style="color:#10b981;">৳4,500</strong></p>
-    </div>
-  </div>
-
-  <div id="noticePage" class="page">
-    <div class="card">
-      <h2>🔔 Notifications</h2>
-      <div style="background:#eef2ff; padding:10px; border-radius:8px; margin-top:10px;">
-        <strong style="font-size:13px;">🎉 ডিপোজিট সফল হয়েছে!</strong>
-        <p style="font-size:12px; color:#475569;">আপনার অ্যাকাউন্টে ৳১০০০ জমা করা হয়েছে।</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="care" class="page">
-    <div class="card">
-      <h2>🤖 Help Care Support</h2>
-      <div class="chat-box" id="chatBox" style="margin-top:10px;">
-        <div class="chat-msg bot-msg">হ্যালো স্যার! আমি আপনাকে কিভাবে সাহায্য করতে পারি?</div>
-      </div>
-      <input type="text" id="userInput" placeholder="আপনার প্রশ্ন লিখুন...">
-      <button onclick="sendChat()" style="background:#0284c7;">Send Message</button>
-    </div>
-  </div>
-
-  <div id="profile" class="page">
-    <div class="card" style="text-align:center;">
-      <div class="logo-avatar">
-        👤
-        <span class="change-logo-btn">Edit</span>
-      </div>
-      <h3 style="margin-top:10px;">017XXXXXXXX</h3>
-      <p style="font-size:12px; color:#64748b;">VIP Level: <strong style="color:#4f46e5;">VIP 1</strong></p>
+    <!-- মেগা অফার -->
+    <div class="notice-card offer">
+        <h4>📢 মেগা অফার!</h4>
+        <p>আজই ডিপোজিট করুন এবং পান ২০% পর্যন্ত বোনাস!</p>
     </div>
 
-    <div class="card">
-      <h3>🔑 Change Password</h3>
-      <input type="password" placeholder="Current Password">
-      <input type="password" placeholder="New Password">
-      <button style="background:#3b82f6;">Update Password</button>
+    <!-- অফিশিয়াল নোটিশ -->
+    <div class="notice-card">
+        <h4>📢 অফিশিয়াল নোটিশ</h4>
+        <p>নতুন বোনাস ও অফার চলছে। আপনার অ্যাকাউন্ট নিরাপদ রাখুন এবং সঠিক তথ্য ব্যবহার করুন।</p>
     </div>
-  </div>
 
-  <div class="nav">
-    <div class="active-nav" onclick="show('home', this)"><span>🏠</span>Home</div>
-    <div onclick="show('wallet', this)"><span>💳</span>Deposit</div>
-    <div onclick="show('withdraw', this)"><span>💸</span>Withdraw</div>
-    <div onclick="show('bonus', this)"><span>🎁</span>Bonus</div>
-    <div onclick="show('noticePage', this)"><span>🔔</span>Notice</div>
-    <div onclick="show('care', this)"><span>🤖</span>Care</div>
-    <div onclick="show('profile', this)"><span>👤</span>Profile</div>
-  </div>
-
-</div>
-
-<script>
-  // Page Switching Function
-  function show(pageId, element){
-    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.nav div').forEach(x => x.classList.remove('active-nav'));
-    
-    document.getElementById(pageId).classList.add('active');
-    element.classList.add('active-nav');
-  }
-
-  // Payment Selection Selector
-  function selectPay(element){
-    let parent = element.parentElement;
-    parent.querySelectorAll('.pay-card').forEach(x => x.classList.remove('selected'));
-    element.classList.add('selected');
-  }
-
-  // Set Quick Amount for Deposit
-  function setDepAmount(val){
-    document.getElementById('depInput').value = val;
-  }
-
-  // Auto Chat Message Handling
-  function sendChat(){
-    let input = document.getElementById('userInput');
-    let box = document.getElementById('chatBox');
-    
-    if(input.value.trim() !== ""){
-      let userDiv = document.createElement('div');
-      userDiv.className = 'chat-msg user-msg';
-      userDiv.innerText = input.value;
-      box.appendChild(userDiv);
-
-      input.value = "";
-      box.scrollTop = box.scrollHeight;
-
-      setTimeout(() => {
-        let botDiv = document.createElement('div');
-        botDiv.className = 'chat-msg bot-msg';
-        botDiv.innerText = "ধন্যবাদ! আপনার বার্তাটি পেয়েছি। আমরা দ্রুতই সমাধান দিচ্ছি।";
-        box.appendChild(botDiv);
-        box.scrollTop = box.scrollHeight;
-      }, 1000);
-    }
-  }
-</script>
+    <!-- বটম নেভিগেশন বার -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <div>🏠</div>
+            Home
+        </a>
+        <a href="#" class="nav-item">
+            <div>💳</div>
+            Deposit
+        </a>
+        <a href="#" class="nav-item">
+            <div>💸</div>
+            Withdraw
+        </a>
+        <a href="#" class="nav-item">
+            <div>🎁</div>
+            Bonus
+        </a>
+        <a href="#" class="nav-item">
+            <div>🔔</div>
+            Notice
+        </a>
+        <a href="panel.html" class="nav-item">
+            <div>👤</div>
+            Profile
+        </a>
+    </div>
 
 </body>
 </html>
